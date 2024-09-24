@@ -1,7 +1,15 @@
 plugins {
     id 'java-library'
     id 'idea'
-    id "com.jfrog.bintray" version "1.7.3" apply false
+    id "com.jfrog.bintray" version "1.8.5" apply false
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()  // Ensure Maven Central is added
+        jcenter()       // JCenter is deprecated, avoid using if possible
+    }
 }
 
 version = '0.2.2'
@@ -25,6 +33,7 @@ repositories {
 dependencies {
     // The production code uses the SLF4J logging API at compile time
     compileOnly group: 'org.slf4j', name:'slf4j-api', version: slf4jVersion
+    implementation 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
 
     // to implement producers and consumers
     compileOnly group: 'org.apache.kafka', name: 'connect-api', version: kafkaVersion

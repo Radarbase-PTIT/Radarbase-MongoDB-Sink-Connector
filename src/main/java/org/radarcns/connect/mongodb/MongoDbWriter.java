@@ -226,7 +226,7 @@ public class MongoDbWriter implements Closeable, Runnable {
 
         List<Map.Entry<TopicPartition, Long>> waiting = new ArrayList<>(offsets.entrySet());
 
-        while (true) {
+        while (true) {`
             Iterator<Map.Entry<TopicPartition, Long>> waitingIterator = waiting.iterator();
 
             while (waitingIterator.hasNext()) {
