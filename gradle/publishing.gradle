@@ -1,15 +1,5 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        implementation 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
-    }
-}
-
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
+//apply plugin: 'com.jfrog.bintray'
 
 def pomConfig = {
     licenses {
@@ -66,22 +56,22 @@ publishing {
 
 
 
-bintray {
-    user = System.getenv('BINTRAY_USER') ? System.getenv('BINTRAY_USER') : project.hasProperty('bintrayUser')
-    key =  System.getenv('BINTRAY_API_KEY') ? System.getenv('BINTRAY_API_KEY') : project.hasProperty('bintrayApiKey')
-    override = false
-    publications = ['RadarMongoDBPublication']
-    pkg {
-        repo = 'org.radarcns'
-        name = 'kafka-connect-mongodb-connect'
-        userOrg = 'radar-cns'
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/RADAR-CNS/MongoDb-Sink-Connector.git'
-        version {
-            name = project.version
-            desc = 'Initial alpha release'
-            vcsTag = System.getenv('TRAVIS_TAG')
-            released  = new Date()
-        }
-    }
-}
+//bintray {
+//    user = System.getenv('BINTRAY_USER') ? System.getenv('BINTRAY_USER') : project.hasProperty('bintrayUser')
+//    key =  System.getenv('BINTRAY_API_KEY') ? System.getenv('BINTRAY_API_KEY') : project.hasProperty('bintrayApiKey')
+//    override = false
+//    publications = ['RadarMongoDBPublication']
+//    pkg {
+//        repo = 'org.radarcns'
+//        name = 'kafka-connect-mongodb-connect'
+//        userOrg = 'radar-cns'
+//        licenses = ['Apache-2.0']
+//        vcsUrl = 'https://github.com/RADAR-CNS/MongoDb-Sink-Connector.git'
+//        version {
+//            name = project.version
+//            desc = 'Initial alpha release'
+//            vcsTag = System.getenv('TRAVIS_TAG')
+//            released  = new Date()
+//        }
+//    }
+//}

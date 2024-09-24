@@ -11,7 +11,6 @@
 log/
 
 # Gradle
-.gradle/
 .gradletasknamecache
 
 # Build

@@ -1,15 +1,7 @@
 plugins {
     id 'java-library'
     id 'idea'
-    id "com.jfrog.bintray" version "1.8.5" apply false
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()  // Ensure Maven Central is added
-        jcenter()       // JCenter is deprecated, avoid using if possible
-    }
+//    id "com.jfrog.bintray" version "1.8.5" apply false
 }
 
 version = '0.2.2'
@@ -27,8 +19,8 @@ repositories {
     jcenter()
     maven { url 'http://packages.confluent.io/maven/' }
     maven { url 'http://dl.bintray.com/typesafe/maven-releases' }
+    maven { url "https://repo.grails.org/grails/core/" }
 }
-
 // In this section you declare the dependencies for your production and test code
 dependencies {
     // The production code uses the SLF4J logging API at compile time
@@ -52,6 +44,9 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
+    doFirst() {
+        logger.lifecycle("Step 1: Starting the task...")
+    }
     gradleVersion = '4.4'
 }
 
