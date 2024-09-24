@@ -143,6 +143,7 @@ public class MongoWrapper implements Closeable {
      */
     public void store(String topic, Document doc) throws MongoException {
         MongoCollection<Document> collection = getCollection(topic);
+        doc.remove(MONGO_ID_KEY);
         Object mongoId = doc.get(MONGO_ID_KEY);
         if (mongoId != null) {
             collection.replaceOne(eq(MONGO_ID_KEY, mongoId), doc, UPDATE_UPSERT);
@@ -162,6 +163,7 @@ public class MongoWrapper implements Closeable {
     public void store(String topic, Stream<Document> docs) throws MongoException {
         getCollection(topic).bulkWrite(docs
                 .map(doc -> {
+                    doc.remove(MONGO_ID_KEY);
                     Object mongoId = doc.get(MONGO_ID_KEY);
                     if (mongoId != null) {
                         return new ReplaceOneModel<>(eq(MONGO_ID_KEY, mongoId), doc, UPDATE_UPSERT);
