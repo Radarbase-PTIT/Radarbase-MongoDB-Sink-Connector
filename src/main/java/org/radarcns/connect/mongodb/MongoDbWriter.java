@@ -286,7 +286,6 @@ public class MongoDbWriter implements Closeable, Runnable {
         try (MongoCursor<Document> documents = documentIterable.iterator()) {
             while (documents.hasNext()) {
                 Document doc = documents.next();
-                logger.debug(doc);
                 Object mongoId = doc.get("_id");
                 if (mongoId instanceof Document) {
                     Document id = (Document) mongoId;

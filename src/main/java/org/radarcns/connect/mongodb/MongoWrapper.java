@@ -143,7 +143,7 @@ public class MongoWrapper implements Closeable {
      * @param doc MongoDB document
      * @throws MongoException if the document could not be stored.
      */
-    public void store(String topic, javax.swing.text.Document doc) throws MongoException {
+    public void store(String topic, Document doc) throws MongoException {
         MongoCollection<Document> collection = getCollection(topic);
         if (topic != OFFSETS_COLLECTION) {
             Object mongoId = doc.get(MONGO_ID_KEY);
