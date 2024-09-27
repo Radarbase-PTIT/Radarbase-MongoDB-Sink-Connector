@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 public class MongoDbWriter implements Closeable, Runnable {
     private static final Logger logger = LoggerFactory.getLogger(MongoDbWriter.class);
     private static final int NUM_RETRIES = 3;
-    private static final String OFFSETS_COLLECTION = "OFFSETS";
+    public static final String OFFSETS_COLLECTION = "OFFSETS";
 
     private final MongoWrapper mongoHelper;
     private final BlockingQueue<SinkRecord> buffer;
@@ -286,12 +286,17 @@ public class MongoDbWriter implements Closeable, Runnable {
         try (MongoCursor<Document> documents = documentIterable.iterator()) {
             while (documents.hasNext()) {
                 Document doc = documents.next();
-                Document id = (Document) doc.get("_id");
-                String topic = id.getString("topic");
-                int partition = id.getInteger("partition");
-                long offset = doc.getLong("offset");
+                logger.debug(doc);
+                Object mongoId = doc.get("_id");
+                if (mongoId instanceof Document) {
+                    Document id = (Document) mongoId;
+                    String topic = id.getString("topic");
+                    int partition = id.getInteger("partition");
+                    long offset = doc.getLong("offset");
 
-                latestOffsets.put(new TopicPartition(topic, partition), offset);
+                    latestOffsets.put(new TopicPartition(topic, partition), offset);
+                }
+
             }
         }
     }
