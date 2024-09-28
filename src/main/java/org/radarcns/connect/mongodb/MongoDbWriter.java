@@ -24,6 +24,7 @@ import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.bson.Document;
+import org.bson.BsonDocument;
 import org.radarcns.connect.mongodb.serialization.RecordConverter;
 import org.radarcns.connect.mongodb.serialization.RecordConverterFactory;
 import org.radarcns.connect.util.Monitor;
@@ -287,17 +288,23 @@ public class MongoDbWriter implements Closeable, Runnable {
             while (documents.hasNext()) {
                 Document doc = documents.next();
                 Object mongoId = doc.get("_id");
-                if (mongoId instanceof Document) {
-                    Document id = (Document) mongoId;
-                    String topic = id.getString("topic");
-                    int partition = id.getInteger("partition");
-                    long offset = doc.getLong("offset");
+                Document id = convertObjectToDocument(mongoId);
+                String topic = id.getString("topic");
+                int partition = id.getInteger("partition");
+                long offset = doc.getLong("offset");
 
-                    latestOffsets.put(new TopicPartition(topic, partition), offset);
-                }
-
+                latestOffsets.put(new TopicPartition(topic, partition), offset);
             }
         }
+    }
+
+    //Convert BsonObject or Document object to Document
+    private Document convertObjectToDocument(Object obj) {
+        if (obj instanceof Document) {
+            return (Document) obj;
+        }
+        BsonDocument bsonDoc = (BsonDocument) obj;
+        return Document.parse(bsonDoc.toJson());
     }
 
     /**

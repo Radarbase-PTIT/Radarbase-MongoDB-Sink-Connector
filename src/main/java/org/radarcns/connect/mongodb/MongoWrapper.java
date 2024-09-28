@@ -31,6 +31,7 @@ import com.mongodb.client.model.UpdateOptions;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.bson.Document;
+import org.bson.BsonDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,14 +146,17 @@ public class MongoWrapper implements Closeable {
      */
     public void store(String topic, Document doc) throws MongoException {
         MongoCollection<Document> collection = getCollection(topic);
-        if (topic != OFFSETS_COLLECTION) {
-            Object mongoId = doc.get(MONGO_ID_KEY);
+//        System.out.println(doc.toJson());
+        if (topic != "OFFSETS") {
+            String mongoDbKey = createMongoDbKeyFromFormat(doc);
             doc.remove(MONGO_ID_KEY);
-            if (mongoId != null) {
-                collection.replaceOne(eq(MONGO_ID_KEY, mongoId), doc, UPDATE_UPSERT);
-            } else {
-                collection.insertOne(doc);
-            }
+            doc.put(MONGO_ID_KEY, mongoDbKey);
+        }
+        Object mongoId = doc.get(MONGO_ID_KEY);
+        if (mongoId != null) {
+            collection.replaceOne(eq(MONGO_ID_KEY, mongoId), doc, UPDATE_UPSERT);
+        } else {
+            collection.insertOne(doc);
         }
     }
 
@@ -167,8 +171,12 @@ public class MongoWrapper implements Closeable {
     public void store(String topic, Stream<Document> docs) throws MongoException {
         getCollection(topic).bulkWrite(docs
                 .map(doc -> {
-                    if (topic != OFFSETS_COLLECTION) {
+//                    System.out.println(doc.toJson());
+                    if (topic != "OFFSETS") {
+                        String mongoDbKey = createMongoDbKeyFromFormat(doc);
                         doc.remove(MONGO_ID_KEY);
+                        doc.put(MONGO_ID_KEY, mongoDbKey);
+                        //create new _id key
                         Object mongoId = doc.get(MONGO_ID_KEY);
                         if (mongoId != null) {
                             return new ReplaceOneModel<>(eq(MONGO_ID_KEY, mongoId), doc, UPDATE_UPSERT);
@@ -180,6 +188,35 @@ public class MongoWrapper implements Closeable {
                     return new ReplaceOneModel<>(eq(MONGO_ID_KEY, mongoId), doc, UPDATE_UPSERT);
                 })
                 .collect(Collectors.toList()));
+    }
+
+    /**
+     * Create mongodb key, replace existing mongodbkey to store in Mongodb database
+     * @param doc
+     * @return
+     */
+    private String createMongoDbKeyFromFormat(Document doc) {
+        Object keyObj = doc.get("key");
+        Document key = convertObjectToDocument(keyObj);
+
+        String sourceId = key.getString("sourceId");
+        String userId = key.getString("userId");
+        String projectId = key.getString("projectId");
+
+        Object valueObj = doc.get("value");
+        Document value = convertObjectToDocument(valueObj);
+        int measurementTimes = value.getInteger("measurementTimes");
+        String mongoDbKey = projectId + ":" + userId + ":" + sourceId + ":" + measurementTimes;
+        return mongoDbKey;
+    }
+
+    //Convert BsonObject or Document object to Document
+    private Document convertObjectToDocument(Object obj) {
+        if (obj instanceof Document) {
+            return (Document) obj;
+        }
+        BsonDocument bsonDoc = (BsonDocument) obj;
+        return Document.parse(bsonDoc.toJson());
     }
 
     private MongoCollection<Document> getCollection(String topic) {
